@@ -1,6 +1,5 @@
 <?php
 $page_title = 'Reservations - UNICRIBS';
-require $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; 
 require '../../core/init.php';
 
 if (!isset($_SESSION['user_id']) ){
@@ -94,8 +93,8 @@ function get_primary_image($pdo, $room_id) {
     }
     return $default;
 }
-
 ?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; ?>
 <body class="bg-gray-50">
 <div class="flex flex-col min-h-screen">
     <?php include '../../includes/header.php'; ?>

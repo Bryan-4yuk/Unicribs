@@ -1,6 +1,5 @@
 <?php
 $page_title = 'Search - UNICRIBS';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php';
 require_once '../../core/init.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'student') {
@@ -46,7 +45,7 @@ $rooms_data = $roomObj->getRooms($filters, $current_page, 12, $_SESSION['user_id
 $rooms = $rooms_data['rooms'];
 $total_pages = $rooms_data['total_pages'];
 ?>
-
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; ?>
 <body class="bg-gray-50">
     <div class="flex flex-col min-h-screen">
         <?php include '../../includes/header.php'; ?>       

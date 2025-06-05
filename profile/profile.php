@@ -1,6 +1,5 @@
 <?php
 $page_title = 'User Profile - UNICRIBS';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; 
 require_once '../core/init.php';
 
 // Check if user is logged in
@@ -60,6 +59,7 @@ $profileAvatar = getSafeImagePath($profileUser['profile_picture'] ?? '', 'avatar
 $profileCover = getSafeImagePath($profileUser['cover_image'] ?? '', 'covers', '../assets/images/default-cover.jpg');
 
 ?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; ?>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
         <?php include '../includes/header.php'; ?>

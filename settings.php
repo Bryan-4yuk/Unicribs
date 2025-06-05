@@ -1,13 +1,11 @@
 <?php
 $page_title = 'Settings - UNICRIBS';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php';
 require_once 'core/init.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit();
 }
-
 $user = new User($pdo);
 $userData = $user->getUser($_SESSION['user_id']);
 
@@ -122,6 +120,7 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 ?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; ?>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
         <?php include 'includes/header.php'; ?>

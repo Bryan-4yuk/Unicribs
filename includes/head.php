@@ -19,6 +19,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/assets/components/star_ratin
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -77,6 +79,17 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/assets/components/star_ratin
     <script src="<?php echo $assets_path; ?>js/script.js" defer></script>
     <!-- Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCPMmHq7Cuad8V5zB1tF1ZHz7us-JKpnVo&libraries=places"></script>
+        <!-- Google Translate Script -->
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,fr',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
    
 
 </head>

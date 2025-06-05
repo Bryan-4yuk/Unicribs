@@ -1,6 +1,5 @@
 <?php
 $page_title = htmlspecialchars(isset($room_data['title']) ? $room_data['title'] . ' - UNICRIBS' : 'Room Details - UNICRIBS');
-require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php';
 require_once 'core/init.php';
 require_once 'assets/components/star_rating.php';
 
@@ -74,15 +73,7 @@ function default_avatar_svg($class = 'w-10 h-10') {
     return '<svg class="'.$class.'" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="m 8 1 c -1.65625 0 -3 1.34375 -3 3 s 1.34375 3 3 3 s 3 -1.34375 3 -3 s -1.34375 -3 -3 -3 z m -1.5 7 c -2.492188 0 -4.5 2.007812 -4.5 4.5 v 0.5 c 0 1.109375 0.890625 2 2 2 h 8 c 1.109375 0 2 -0.890625 2 -2 v -0.5 c 0 -2.492188 -2.007812 -4.5 -4.5 -4.5 z m 0 0" fill="#2e3436"/></svg>';
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; ?>
 <body class="bg-gray-50">
 <div class="flex flex-col min-h-screen">
     <?php include 'includes/header.php'; ?>

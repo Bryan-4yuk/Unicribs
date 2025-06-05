@@ -98,28 +98,49 @@ class User {
         $stmt = $this->pdo->prepare("UPDATE users SET profile_picture = ? WHERE id = ?");
         return $stmt->execute([$image_path, $id]);
     }
-
-    // Add this method to the User class in core/classes/user.php
     public function updateUser($id, $data) {
-        // Prepare the SQL query
-        $sql = "UPDATE users SET ";
-        $params = [];
-        $updates = [];
+        $fields = [];
+        $values = [];
         
-        // Build the update query dynamically based on provided data
-        foreach ($data as $key => $value) {
-            $updates[] = "$key = ?";
-            $params[] = $value;
+        foreach ($data as $field => $value) {
+            $fields[] = "$field = ?";
+            $values[] = $value;
         }
         
-        $sql .= implode(', ', $updates);
-        $sql .= " WHERE id = ?";
-        $params[] = $id;
-        
-        // Execute the query
+        $values[] = $id;
+        $sql = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = ?";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute($params);
+        return $stmt->execute($values);
     }
+
+    public function changePassword($id, $currentPassword, $newPassword) {
+        $user = $this->getUser($id);
+        
+        if (password_verify($currentPassword, $user['password'])) {
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            $stmt = $this->pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+            return $stmt->execute([$hashedPassword, $id]);
+        }
+        
+        return false;
+    }
+
+    public function changeEmail($id, $newEmail, $password) {
+        $user = $this->getUser($id);
+        
+        if (password_verify($password, $user['password'])) {
+            $stmt = $this->pdo->prepare("UPDATE users SET email = ? WHERE id = ?");
+            return $stmt->execute([$newEmail, $id]);
+        }
+        
+        return false;
+    }
+
+    public function deactivateAccount($id) {
+        $stmt = $this->pdo->prepare("UPDATE users SET is_active = 0 WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+
     public function emailExists($email) {
         $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
@@ -145,5 +166,6 @@ class User {
         }
         return false;
     }
+
 }
 ?>

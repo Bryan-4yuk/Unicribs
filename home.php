@@ -1,6 +1,5 @@
 <?php
 $page_title = 'Student Dashboard - UNICRIBS';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php';
 require_once 'core/init.php';
 
 // Check if user is logged in and is a student
@@ -37,7 +36,7 @@ $rooms_data = $room->getRooms($filters, $current_page, 12, $_SESSION['user_id'])
 $rooms = $rooms_data['rooms'];
 $total_pages = $rooms_data['total_pages'];
 ?>
-
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; ?>
 <body class="bg-gray-50">
     <div class="flex flex-col min-h-screen">
             <?php include 'includes/header.php'; ?> 

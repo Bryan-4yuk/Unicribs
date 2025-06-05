@@ -1,6 +1,5 @@
 <?php
 $page_title = htmlspecialchars(isset($room_data['title']) ? $room_data['title'] . ' - UNICRIBS' : 'Room Details - UNICRIBS');
-require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php';
 require_once 'core/init.php';
 require_once 'assets/components/star_rating.php';
 
@@ -77,7 +76,7 @@ $is_own_profile = ($profile_id == $_SESSION['user_id']);
         }
     </style>
 </head>
-
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; ?>
 <body class="bg-light font-sans text-dark">
     <div class="flex min-h-screen">
         <?php include 'includes/header.php'; ?>

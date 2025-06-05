@@ -1,6 +1,5 @@
 <?php
 $page_title = 'Landlords Dashboard - UNICRIBS';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php';
 require_once 'core/init.php';
 
 // Check if user is logged in and is a landlord
@@ -25,6 +24,7 @@ $totalRooms = count($rooms);
 $totalPending = count($pendingBookings);
 $totalActive = count($approvedBookings);
 ?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; ?>
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
         <?php include 'includes/header.php'; ?>

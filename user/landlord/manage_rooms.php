@@ -1,6 +1,5 @@
 <?php
 $page_title = 'Manage Rooms - UNICRIBS';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; 
 require_once '../../core/init.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'landlord') {
@@ -98,6 +97,7 @@ function get_room_status_label($room) {
 }
 
 ?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/UNICRIBS/includes/head.php'; ?>
 <body class="bg-gray-50">
     <div class="flex flex-col min-h-screen">
         <?php include '../../includes/header.php'; ?> 
