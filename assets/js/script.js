@@ -308,7 +308,7 @@ function loadGoogleScripts() {
     document.body.appendChild(script1);
 
     const script2 = document.createElement('script');
-    script2.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCPMmHq7Cuad8V5zB1tF1ZHz7us-JKpnVo&libraries=places&callback=initMap`;
+    script2.src = `https://maps.googleapis.com/maps/api/js?key=`;
     script2.async = true;
     script2.defer = true;
     document.body.appendChild(script2);
