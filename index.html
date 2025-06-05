@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNICRIBS - Student Accommodation Platform for Cameroon Universities</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#DC2626',secondary:'#F87171'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="assets/js/script.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .glass-morph {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(82, 82, 82, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .form-container {
+            max-width: 450px;
+            width: 100%;
+        }
+        .hero-gradient {
+            background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, rgba(255,255,255,0) 100%);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Hero Section with Form -->
+    <section class="relative min-h-screen flex items-center overflow-hidden">
+        
+        <div style="background-image: url('assets/images/Unicribs.jpg'); background-size: cover; background-position: center;" class="absolute inset-0 w-full h-full"></div>
+        <div class="absolute inset-0 hero-gradient"></div>
+        <div class="container mx-auto px-4 py-16 relative z-10 flex items-center">
+            <div class="flex-1 pl-16 hidden lg:block">
+                <div class="max-w-xl floating">
+                    <a href="#" class="flex items-center py-3 ">
+                       
+                        <span class="text-5xl font-['Pacifico'] text-primary">UNICRIBS</span>
+                        <img src="assets/images/cribs.png" alt="UNICRIBS Logo" class="w-32 h-32 mr-4">
+                    </a>
+
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">Find Your Perfect Student Home</h1>
+                    <p class="text-lg md:text-xl text-gray-700 mb-8">UNICRIBS connects students with quality accommodation near Cameroon universities. Safe, affordable, and verified housing options at your fingertips.</p>
+                    
+                    <div class="flex items-center gap-4">
+                        <p class="text-gray-600 font-medium">Trusted by:</p>
+                        <div class="flex items-center gap-6">
+                            <div class="flex items-center gap-1">
+                                <div class="w-6 h-6 flex items-center justify-center">
+                                    <i class="ri-building-4-line"></i>
+                                </div>
+                                <span class="text-sm font-medium">....</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-6 h-6 flex items-center justify-center">
+                                    <i class="ri-building-2-line"></i>
+                                </div>
+                                <span class="text-sm font-medium">....</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-container glass-morph p-8 rounded-xl">
+                <!-- Login Form (shown by default) -->
+                <div id="loginForm" class="bg-white/90 p-8 rounded-xl border border-gray-300">
+                    <h2 class="text-2xl font-bold mb-6 text-center">Welcome Back</h2>
+                    
+                    <div class="mb-4">
+                        <button id="googleSignInButton" class="w-full flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-button hover:bg-gray-50 transition whitespace-nowrap">
+                            <div class="w-5 h-5 flex items-center justify-center">
+                                <i class="ri-google-fill"></i>
+                            </div>
+                            <span>Continue with Google</span>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 my-6">
+                        <div class="flex-1 h-px bg-gray-200"></div>
+                        <span class="text-sm text-gray-500">or</span>
+                        <div class="flex-1 h-px bg-gray-200"></div>
+                    </div>
+                    
+                    <form action="includes/login.php" method="POST">
+                        <div class="mb-4">
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input type="email" id="email" name="email" class="auth-input" placeholder="your@email.com" required>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" id="password" name="password" class="auth-input" placeholder="••••••••" required>
+                            <div class="flex justify-end mt-1">
+                                <a href="forgot-password.html" class="text-sm text-primary hover:underline">Forgot password?</a>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="remember" name="remember">
+                                <span class="checkmark"></span>
+                                <span class="ml-2">Remember me</span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="auth-btn auth-btn-primary">Log In</button>
+                    </form>
+                    
+                    <div class="mt-6 text-center">
+                        <p class="text-gray-600">Don't have an account? <button id="showRegisterForm" class="text-primary font-medium hover:underline">Register</button></p>
+                    </div>
+                </div>
+                
+                <!-- Register Form (hidden by default) -->
+                <div id="registerForm" class="bg-white/90 p-8 rounded-xl hidden border border-gray-300">
+                    <h2 class="text-2xl font-bold mb-6 text-center">Create Your Account</h2>
+                    
+                    <div class="mb-6">
+                        <div class="flex rounded-full bg-gray-100 p-1 mb-4">
+                            <button id="studentTypeBtn" class="flex-1 py-2 px-4 rounded-full bg-primary text-white font-medium">Student</button>
+                            <button id="landlordTypeBtn" class="flex-1 py-2 px-4 rounded-full text-gray-700 font-medium">Landlord</button>
+                        </div>
+                    </div>
+                    
+                    <form action="includes/signup.php" method="POST" id="registrationForm">
+                        <input type="hidden" name="user_type" id="userTypeInput" value="student">
+                        
+                        <div class="mb-4">
+                            <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="full_name" name="full_name" class="auth-input" placeholder="John Doe" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="register_email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input type="email" id="register_email" name="email" class="auth-input" placeholder="your@email.com" required>
+                        </div>
+                        
+                        <div id="cniField" class="mb-4 hidden">
+                            <label for="cni" class="block text-sm font-medium text-gray-700 mb-1">CNI (Identity Card Number)</label>
+                            <input type="text" id="cni" name="cni" class="auth-input" placeholder="Your CNI number">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="register_password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" id="register_password" name="password" class="auth-input" placeholder="••••••••" required>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" class="auth-input" placeholder="••••••••" required>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="terms_agree" name="terms_agree" required>
+                                <span class="checkmark"></span>
+                                <span class="ml-2">I agree to the <a href="terms.html" class="text-primary hover:underline">Terms of Service</a> and <a href="privacy.html" class="text-primary hover:underline">Privacy Policy</a></span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="auth-btn auth-btn-primary">Create Account</button>
+                    </form>
+                    
+                    <div class="mt-6 text-center">
+                        <p class="text-gray-600">Already have an account? <button id="showLoginForm" class="text-primary font-medium hover:underline">Log In</button></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="assets/js/script.js"></script>
+    <script>
+        // Form toggle functionality
+        document.getElementById('showRegisterForm').addEventListener('click', function() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        });
+        
+        document.getElementById('showLoginForm').addEventListener('click', function() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        });
+        
+        // User type toggle
+        document.getElementById('studentTypeBtn').addEventListener('click', function() {
+            this.classList.add('bg-primary', 'text-white');
+            this.classList.remove('text-gray-700');
+            document.getElementById('landlordTypeBtn').classList.remove('bg-primary', 'text-white');
+            document.getElementById('landlordTypeBtn').classList.add('text-gray-700');
+            document.getElementById('cniField').classList.add('hidden');
+            document.getElementById('userTypeInput').value = 'student';
+        });
+        
+        document.getElementById('landlordTypeBtn').addEventListener('click', function() {
+            this.classList.add('bg-primary', 'text-white');
+            this.classList.remove('text-gray-700');
+            document.getElementById('studentTypeBtn').classList.remove('bg-primary', 'text-white');
+            document.getElementById('studentTypeBtn').classList.add('text-gray-700');
+            document.getElementById('cniField').classList.remove('hidden');
+            document.getElementById('userTypeInput').value = 'landlord';
+        });
+        
+        // Password confirmation validation
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('register_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+            }
+        });
+
+        // Change navbar style on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.remove('nav-transparent');
+                navbar.classList.add('nav-solid');
+            } else {
+                navbar.classList.add('nav-transparent');
+                navbar.classList.remove('nav-solid');
+            }
+        });
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
