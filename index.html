@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNICRIBS - Student Accommodation Platform for Cameroon Universities</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
@@ -13,31 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
     <script src="assets/js/script.js"></script>
     <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        .glass-morph {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 16px;
-            border: 1px solid rgba(82, 82, 82, 0.3);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
-        .form-container {
-            max-width: 450px;
-            width: 100%;
-        }
-        .hero-gradient {
-            background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, rgba(255,255,255,0) 100%);
-        }
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/login.css">
 </head>
 <body class="bg-white">
     <!-- Hero Section with Form -->
@@ -82,14 +59,125 @@
                 <div id="loginForm" class="bg-white/90 p-8 rounded-xl border border-gray-300">
                     <h2 class="text-2xl font-bold mb-6 text-center">Welcome Back</h2>
                     
+                    <!-- Google Sign-In Button -->
                     <div class="mb-4">
-                        <button id="googleSignInButton" class="w-full flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-button hover:bg-gray-50 transition whitespace-nowrap">
-                            <div class="w-5 h-5 flex items-center justify-center">
-                                <i class="ri-google-fill"></i>
-                            </div>
-                            <span>Continue with Google</span>
-                        </button>
+                        <div id="googleSignInDiv" class="w-full"></div>
                     </div>
+                    <script src="https://accounts.google.com/gsi/client" async defer></script>
+                    <script>
+                        // Fetch CSRF token from backend
+                        let csrfToken = '';
+                        fetch('includes/google_login.php', { credentials: 'include' })
+                            .then(res => res.json())
+                            .then(data => { csrfToken = data.csrf_token; });
+
+                        // Initialize Google Sign-In
+                        window.onload = function() {
+                            google.accounts.id.initialize({
+                                client_id: '1053163492688-lnmh4fpgpmhndl7g9l5j0qt9n36ue8cf.apps.googleusercontent.com',
+                                callback: handleGoogleCredentialResponse,
+                                ux_mode: 'popup'
+                            });
+                            google.accounts.id.renderButton(
+                                document.getElementById('googleSignInDiv'),
+                                { theme: 'outline', size: 'large', width: '100%' }
+                            );
+                        };
+                        // Modify the handleGoogleCredentialResponse function
+                        function handleGoogleCredentialResponse(response) {
+                            // Send credential to backend for verification
+                            fetch('includes/google_login.php', {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    credential: response.credential,
+                                    csrf_token: csrfToken
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Check if this is a new user (indicated by needs_type_selection)
+                                    if (data.needs_type_selection) {
+                                        showAccountTypePopup(data);
+                                    } else {
+                                        // Redirect based on user type
+                                        const redirectUrl = data.user_type === 'landlord' ? 'home_l.php' : 'home.php';
+                                        window.location.href = redirectUrl;
+                                    }
+                                } else {
+                                    alert(data.message || 'Google login failed.');
+                                }
+                            })
+                            .catch(() => alert('Google login failed. Please try again.'));
+                        }
+
+                        // Add this function to show the account type selection popup
+                        function showAccountTypePopup(data) {
+                            // Create popup HTML
+                            const popup = document.createElement('div');
+                            popup.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                            popup.innerHTML = `
+                                <div class="bg-white rounded-lg p-6 max-w-sm w-full">
+                                    <h3 class="text-xl font-bold mb-4">Select Your Account Type</h3>
+                                    <p class="mb-4">Welcome! Please select whether you're a student or landlord:</p>
+                                    
+                                    <div class="flex gap-4 mb-6">
+                                        <button onclick="selectAccountType('student', '${data.user_id}')" 
+                                                class="flex-1 py-2 px-4 rounded-lg bg-primary text-white font-medium">
+                                            Student
+                                        </button>
+                                        <button onclick="selectAccountType('landlord', '${data.user_id}')" 
+                                                class="flex-1 py-2 px-4 rounded-lg bg-gray-200 text-gray-800 font-medium">
+                                            Landlord
+                                        </button>
+                                    </div>
+                                    
+                                    <p class="text-sm text-gray-500">You can't change this later, so choose carefully.</p>
+                                </div>
+                            `;
+                            
+                            document.body.appendChild(popup);
+                        }
+
+                        // Update the selectAccountType function
+                        function selectAccountType(userType, userId) {
+                            // Get CSRF token from meta tag or previous response
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || window.csrfToken;
+                            
+                            fetch('includes/update_user_type.php', {
+                                method: 'POST',
+                                credentials: 'include', // Important for session cookies
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    user_id: userId,
+                                    user_type: userType,
+                                    csrf_token: csrfToken
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Update CSRF token if returned
+                                    if (data.csrf_token) {
+                                        document.querySelector('meta[name="csrf-token"]').content = data.csrf_token;
+                                        window.csrfToken = data.csrf_token;
+                                    }
+                                    window.location.href = userType === 'landlord' ? 'home_l.php' : 'home.php';
+                                } else {
+                                    alert(data.message || 'Failed to set account type');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Error: ' + error.message);
+                            });
+                        }       
+                                            
+                    </script>
                     
                     <div class="flex items-center gap-4 my-6">
                         <div class="flex-1 h-px bg-gray-200"></div>

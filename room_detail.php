@@ -46,6 +46,9 @@ $similar_rooms = $room->getRooms(['university_id' => $room_data['university_id']
 $similar_rooms = array_filter($similar_rooms, function($r) use ($room_id) {
     return $r['id'] != $room_id;
 });
+// Get safe image paths
+$profileAvatar = getSafeImagePath($profileUser['profile_picture'] ?? '', 'avatars', '../assets/images/default-avatar.svg');
+$profileCover = getSafeImagePath($profileUser['cover_image'] ?? '', 'covers', '../assets/images/default-cover.jpg');
 
 // Process comment/review submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
@@ -164,7 +167,7 @@ function default_avatar_svg($class = 'w-10 h-10') {
                     <div id="reviews" class="bg-white rounded-xl shadow-sm p-6 hover-scale transition">
                         <h2 class="text-xl font-bold text-gray-800 mb-6">Reviews</h2>
                         
-                        <!-- Reviews Carousel -->
+                        <!-- Reviews Section - Horizontal Carousel Cards -->
                         <div class="testimonial-slider relative">
                             <?php if (empty($reviews)): ?>
                                 <div class="text-center py-8">
@@ -172,136 +175,123 @@ function default_avatar_svg($class = 'w-10 h-10') {
                                     <p class="text-gray-500">No reviews yet. Be the first to review!</p>
                                 </div>
                             <?php else: ?>
-                                <!-- Carousel Container -->
                                 <div class="relative overflow-hidden">
-                                    <!-- Carousel Track -->
-                                    <div class="reviews-carousel-track flex overflow-x-auto pb-6 scrollbar-hide" style="scroll-snap-type: x mandatory;">
+                                    <div class="reviews-carousel-track flex flex-nowrap space-x-6 overflow-x-auto scrollbar-hide py-2 px-1" style="scroll-behavior: smooth;">
                                         <?php foreach ($reviews as $review): ?>
-                                            <div class="review-card flex-shrink-0 w-full md:w-1/2 lg:w-1/3 px-3" style="scroll-snap-align: start;">
-                                                <div class="bg-gray-50 rounded-xl p-6 h-full border border-gray-100 transition-all duration-300 hover:shadow-md">
-                                                    <!-- Rating Stars -->
-                                                    <?php if ($review['is_review'] && $review['rating']): ?>
-                                                        <div class="flex mb-3">
-                                                            <?php renderStarRating($review['rating'], 'w-4 h-4'); ?>
-                                                        </div>
+                                            <div class="review-card flex flex-col bg-gray-50 rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 p-5 min-w-[320px] max-w-xs w-[320px]">
+                                                <!-- Reviewer Avatar -->
+                                                <div class="flex items-center mb-3">
+                                                    <?php
+                                                    if (!empty($review['profile_picture'])) {
+                                                        echo '<img src="'.htmlspecialchars($review['profile_picture']).'" alt="User avatar" class="w-12 h-12 rounded-xl object-cover border border-gray-200 mr-3">';
+                                                    } else {
+                                                        echo default_avatar_svg('w-12 h-12 mr-3');
+                                                    }
+                                                    ?>
+                                                    <div class="flex-1 min-w-0">
+                                                        <h4 class="font-semibold text-gray-900 text-base truncate"><?php echo htmlspecialchars($review['full_name']); ?></h4>
+                                                        <span class="text-xs text-gray-400"><?php echo date('M j, Y', strtotime($review['created_at'])); ?></span>
+                                                    </div>
+                                                    <?php if ($review['user_id'] == $_SESSION['user_id']): ?>
+                                                        <form method="POST" class="delete-comment-form ml-2">
+                                                            <input type="hidden" name="comment_id" value="<?php echo $review['id']; ?>">
+                                                            <button type="submit" name="delete_comment" class="text-red-500 hover:text-red-700 text-xs" title="Delete">
+                                                                <i class="ri-delete-bin-line"></i>
+                                                            </button>
+                                                        </form>
                                                     <?php endif; ?>
-                                                    <div class="flex items-center mb-4">
-                                                        <div class="w-6 h-6 flex items-center justify-center text-primary">
-                                                            <i class="ri-double-quotes-l ri-lg"></i>
+                                                </div>
+                                                <?php if ($review['is_review'] && $review['rating']): ?>
+                                                    <div class="flex items-center mb-2">
+                                                        <?php renderStarRating($review['rating'], 'w-4 h-4'); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <div class="mb-2 flex-1">
+                                                    <p class="text-gray-700 text-sm leading-relaxed line-clamp-5"><?php echo nl2br(htmlspecialchars($review['content'])); ?></p>
+                                                </div>
+                                                <div class="flex items-center space-x-4 border-t border-gray-100 pt-3 mt-2">
+                                                    <button class="view-replies-btn text-xs text-gray-500 hover:text-primary transition flex items-center"
+                                                        data-review-id="<?php echo $review['id']; ?>"
+                                                        data-reply-count="<?php echo count($review['replies'] ?? []); ?>">
+                                                        <i class="ri-chat-1-line mr-1"></i>
+                                                        <?php echo count($review['replies'] ?? []); ?> repl<?php echo count($review['replies'] ?? []) == 1 ? 'y' : 'ies'; ?>
+                                                    </button>
+                                                    <button class="reply-btn text-xs text-gray-500 hover:text-primary transition flex items-center">
+                                                        <i class="ri-reply-line mr-1"></i> Reply
+                                                    </button>
+                                                </div>
+                                                <!-- Reply Form (hidden by default) -->
+                                                <form method="POST" class="reply-form hidden mt-3">
+                                                    <input type="hidden" name="parent_id" value="<?php echo $review['id']; ?>">
+                                                    <div class="flex items-start space-x-2">
+                                                        <?php
+                                                        if (!empty($userData['profile_picture'])) {
+                                                            echo '<img src="'.htmlspecialchars($userData['profile_picture']).'" alt="User avatar" class="w-7 h-7 rounded-xl object-cover border border-gray-200">';
+                                                        } else {
+                                                            echo default_avatar_svg('w-7 h-7');
+                                                        }
+                                                        ?>
+                                                        <div class="flex-1">
+                                                            <textarea name="comment" rows="2" class="w-full px-2 py-1 border border-gray-200 rounded-lg focus:ring-primary focus:border-primary transition text-xs" placeholder="Write a reply..."></textarea>
+                                                            <div class="flex justify-end mt-1">
+                                                                <button type="submit" class="px-2 py-1 bg-primary text-white rounded-lg hover:bg-red-700 transition text-xs">Reply</button>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    
-                                                    <div class="flex flex-col h-full">
-                                                        <!-- Review Content -->
-                                                        <p class="text-gray-700 mb-6 flex-grow"><?php echo nl2br(htmlspecialchars($review['content'])); ?></p>
-                                                        
-                                                        <!-- Reviewer Info -->
-                                                        <div class="mt-auto">
-                                                            <div class="flex items-center space-x-4 mb-4">
+                                                </form>
+                                                <!-- Replies Container -->
+                                                <div id="replies-<?php echo $review['id']; ?>" class="mt-3 pl-4 border-l-2 border-gray-100 space-y-3 hidden">
+                                                    <?php if (!empty($review['replies'])): ?>
+                                                        <?php foreach ($review['replies'] as $reply): ?>
+                                                            <div class="reply flex items-start space-x-2">
                                                                 <?php
-                                                                if (!empty($review['profile_picture'])) {
-                                                                    echo '<img src="'.htmlspecialchars($review['profile_picture']).'" alt="User avatar" class="w-12 h-12 rounded-full">';
+                                                                if (!empty($reply['profile_picture'])) {
+                                                                    echo '<img src="'.htmlspecialchars($reply['profile_picture']).'" alt="User avatar" class="w-7 h-7 rounded-xl object-cover border border-gray-200">';
                                                                 } else {
-                                                                    echo default_avatar_svg('w-12 h-12');
+                                                                    echo default_avatar_svg('w-7 h-7');
                                                                 }
                                                                 ?>
-                                                                <div>
-                                                                    <h4 class="font-semibold text-gray-800"><?php echo htmlspecialchars($review['full_name']); ?></h4>
-                                                                    <span class="text-xs text-gray-500"><?php echo date('M j, Y', strtotime($review['created_at'])); ?></span>
-                                                                </div>
-                                                                <?php if ($review['user_id'] == $_SESSION['user_id']): ?>
-                                                                    <form method="POST" class="delete-comment-form ml-auto">
-                                                                        <input type="hidden" name="comment_id" value="<?php echo $review['id']; ?>">
-                                                                        <button type="submit" name="delete_comment" class="text-red-500 hover:text-red-700 text-sm">
-                                                                            <i class="ri-delete-bin-line"></i>
-                                                                        </button>
-                                                                    </form>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                            
-                                                            <!-- Review Actions -->
-                                                            <div class="flex items-center space-x-4 border-t border-gray-100 pt-4">
-                                                                <button class="view-replies-btn text-sm text-gray-500 hover:text-primary transition flex items-center"
-                                                                    data-review-id="<?php echo $review['id']; ?>"
-                                                                    data-reply-count="<?php echo count($review['replies'] ?? []); ?>">
-                                                                    <i class="ri-chat-1-line mr-1"></i>
-                                                                    <?php echo count($review['replies'] ?? []); ?> repl<?php echo count($review['replies'] ?? []) == 1 ? 'y' : 'ies'; ?>
-                                                                </button>
-                                                                <button class="reply-btn text-sm text-gray-500 hover:text-primary transition flex items-center">
-                                                                    <i class="ri-reply-line mr-1"></i> Reply
-                                                                </button>
-                                                            </div>
-                                                            
-                                                            <!-- Reply Form (hidden by default) -->
-                                                            <form method="POST" class="reply-form hidden mt-4">
-                                                                <input type="hidden" name="parent_id" value="<?php echo $review['id']; ?>">
-                                                                <div class="flex items-start space-x-3">
-                                                                    <?php
-                                                                    if (!empty($userData['profile_picture'])) {
-                                                                        echo '<img src="'.htmlspecialchars($userData['profile_picture']).'" alt="User avatar" class="w-8 h-8 rounded-full">';
-                                                                    } else {
-                                                                        echo default_avatar_svg('w-8 h-8');
-                                                                    }
-                                                                    ?>
-                                                                    <div class="flex-1">
-                                                                        <textarea name="comment" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-primary focus:border-primary transition" placeholder="Write a reply..."></textarea>
-                                                                        <div class="flex justify-end mt-1">
-                                                                            <button type="submit" class="px-3 py-1 bg-primary text-white rounded-lg hover:bg-red-700 transition text-sm">Reply</button>
+                                                                <div class="flex-1">
+                                                                    <div class="flex items-center justify-between">
+                                                                        <div>
+                                                                            <h4 class="font-medium text-gray-800 text-xs"><?php echo htmlspecialchars($reply['full_name']); ?></h4>
+                                                                            <span class="text-xs text-gray-500"><?php echo date('M j, Y', strtotime($reply['created_at'])); ?></span>
                                                                         </div>
+                                                                        <?php if ($reply['user_id'] == $_SESSION['user_id']): ?>
+                                                                            <form method="POST" class="delete-comment-form">
+                                                                                <input type="hidden" name="comment_id" value="<?php echo $reply['id']; ?>">
+                                                                                <button type="submit" name="delete_comment" class="text-red-500 hover:text-red-700 text-xs" title="Delete">
+                                                                                    <i class="ri-delete-bin-line"></i>
+                                                                                </button>
+                                                                            </form>
+                                                                        <?php endif; ?>
                                                                     </div>
+                                                                    <p class="text-gray-600 mt-1 text-xs"><?php echo nl2br(htmlspecialchars($reply['content'])); ?></p>
                                                                 </div>
-                                                            </form>
-                                                            
-                                                            <!-- Replies Container -->
-                                                            <div id="replies-<?php echo $review['id']; ?>" class="mt-4 ml-8 pl-4 border-l-2 border-gray-100 space-y-4 hidden">
-                                                                <?php if (!empty($review['replies'])): ?>
-                                                                    <?php foreach ($review['replies'] as $reply): ?>
-                                                                        <div class="reply">
-                                                                            <div class="flex items-start space-x-3">
-                                                                                <?php
-                                                                                if (!empty($reply['profile_picture'])) {
-                                                                                    echo '<img src="'.htmlspecialchars($reply['profile_picture']).'" alt="User avatar" class="w-8 h-8 rounded-full">';
-                                                                                } else {
-                                                                                    echo default_avatar_svg('w-8 h-8');
-                                                                                }
-                                                                                ?>
-                                                                                <div class="flex-1">
-                                                                                    <div class="flex items-center justify-between">
-                                                                                        <div>
-                                                                                            <h4 class="font-medium text-gray-800 text-sm"><?php echo htmlspecialchars($reply['full_name']); ?></h4>
-                                                                                            <span class="text-xs text-gray-500"><?php echo date('M j, Y', strtotime($reply['created_at'])); ?></span>
-                                                                                        </div>
-                                                                                        <?php if ($reply['user_id'] == $_SESSION['user_id']): ?>
-                                                                                            <form method="POST" class="delete-comment-form">
-                                                                                                <input type="hidden" name="comment_id" value="<?php echo $reply['id']; ?>">
-                                                                                                <button type="submit" name="delete_comment" class="text-red-500 hover:text-red-700 text-xs">
-                                                                                                    <i class="ri-delete-bin-line"></i>
-                                                                                                </button>
-                                                                                            </form>
-                                                                                        <?php endif; ?>
-                                                                                    </div>
-                                                                                    <p class="text-gray-600 mt-1 text-sm"><?php echo nl2br(htmlspecialchars($reply['content'])); ?></p>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    <?php endforeach; ?>
-                                                                <?php endif; ?>
                                                             </div>
-                                                        </div>
-                                                    </div>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
                                 </div>
-                                <!-- Carousel Navigation -->
-                                <div class="flex justify-center mt-6 mb-4">
-                                    <div class="flex space-x-2">
-                                        <?php for ($i = 0; $i < min(3, ceil(count($reviews) / 3)); $i++): ?>
-                                            <button class="carousel-dot w-3 h-3 rounded-full <?php echo $i === 0 ? 'bg-primary' : 'bg-gray-300'; ?>"></button>
-                                        <?php endfor; ?>
-                                    </div>
-                                </div>
+                                <script>
+                                // Carousel scroll logic
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const track = document.querySelector('.reviews-carousel-track');
+                                    const prevBtn = document.querySelector('.carousel-prev');
+                                    const nextBtn = document.querySelector('.carousel-next');
+                                    if (track && prevBtn && nextBtn) {
+                                        prevBtn.addEventListener('click', function () {
+                                            track.scrollBy({ left: -340, behavior: 'smooth' });
+                                        });
+                                        nextBtn.addEventListener('click', function () {
+                                            track.scrollBy({ left: 340, behavior: 'smooth' });
+                                        });
+                                    }
+                                });
+                                </script>
                             <?php endif; ?>
                         </div>
 
@@ -478,47 +468,83 @@ function default_avatar_svg($class = 'w-10 h-10') {
                     </div>
                     <!-- Landlord Card -->
                     <div class="bg-white rounded-xl shadow-sm p-6 hover-scale transition">
+                        <?php
+                        // Fetch landlord info
+                        $landlord = (new User($pdo))->getUser($room_data['landlord_id']);
+                        // Get landlord rating stats
+                        $landlord_rating = (new Room($pdo))->getLandlordRatingStats($room_data['landlord_id']);
+                        // Get landlord avatar path using the same helper as profile page
+                        function getSafeImagePath($imagePath, $folder, $defaultImage) {
+                            if (empty($imagePath)) {
+                                return $defaultImage;
+                            }
+                            $fullPath = "uploads/{$folder}/" . $imagePath;
+                            if (file_exists(__DIR__ . '/' . $fullPath)) {
+                                return $fullPath;
+                            }
+                            return $defaultImage;
+                        }
+                        $landlordAvatar = getSafeImagePath($landlord['profile_picture'] ?? '', 'avatars', 'assets/images/default-avatar.svg');
+                        ?>
                         <div class="flex items-center space-x-4 mb-4">
                             <?php
-                            if (!empty($room_data['landlord_avatar'])) {
-                                echo '<img src="'.htmlspecialchars($room_data['landlord_avatar']).'" alt="Landlord avatar" class="w-14 h-14 rounded-full">';
+                            if (!empty($landlordAvatar)) {
+                                echo '<img src="' . htmlspecialchars($landlordAvatar) . '" alt="Landlord avatar" class="w-14 h-14 rounded-full" onerror="this.src=\'assets/images/default-avatar.svg\'">';
                             } else {
                                 echo default_avatar_svg('w-14 h-14');
                             }
                             ?>
                             <div>
-                                <h3 class="font-bold text-gray-800"><?php echo htmlspecialchars($room_data['landlord_name']); ?></h3>
+                                <h3 class="font-bold text-gray-800"><?php echo htmlspecialchars($landlord['full_name']); ?></h3>
                                 <div class="flex items-center text-sm text-gray-500">
                                     <i class="ri-star-fill text-yellow-400 mr-1"></i>
-                                    <span>4.8 (24 reviews)</span>
+                                    <span>
+                                        <?php
+                                        echo number_format($landlord_rating['avg_rating'], 1) . ' (' . $landlord_rating['total_reviews'] . ' reviews)';
+                                        ?>
+                                    </span>
                                 </div>
                             </div>
                         </div>
                         <div class="space-y-3 mb-6">
-                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition">
-                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
-                                    <i class="ri-phone-line text-gray-600"></i>
-                                </div>
-                                <span class="text-gray-700">+237 6XX XXX XXX</span>
-                            </a>
-                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition">
-                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
-                                    <i class="ri-mail-line text-gray-600"></i>
-                                </div>
-                                <span class="text-gray-700">Email landlord</span>
-                            </a>
-                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition">
-                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
-                                    <i class="ri-whatsapp-line text-gray-600"></i>
-                                </div>
-                                <span class="text-gray-700">Chat on WhatsApp</span>
-                            </a>
+                            <?php if (!empty($landlord['phone_number'])): ?>
+                                <a href="tel:<?php echo htmlspecialchars($landlord['phone_number']); ?>" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                        <i class="ri-phone-line text-gray-600"></i>
+                                    </div>
+                                    <span class="text-gray-700"><?php echo htmlspecialchars($landlord['phone_number']); ?></span>
+                                </a>
+                            <?php endif; ?>
+                            <?php if (!empty($landlord['email'])): ?>
+                                <a href="mailto:<?php echo htmlspecialchars($landlord['email']); ?>" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                        <i class="ri-mail-line text-gray-600"></i>
+                                    </div>
+                                    <span class="text-gray-700"><?php echo htmlspecialchars($landlord['email']); ?></span>
+                                </a>
+                            <?php endif; ?>
+                            <?php if (!empty($landlord['whatsapp_number'])): ?>
+                                <a href="https://wa.me/<?php echo preg_replace('/\D/', '', $landlord['whatsapp_number']); ?>" target="_blank" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                        <i class="ri-whatsapp-line text-gray-600"></i>
+                                    </div>
+                                    <span class="text-gray-700"><?php echo htmlspecialchars($landlord['whatsapp_number']); ?></span>
+                                </a>
+                            <?php endif; ?>
                         </div>
-                        <a href="viewprofile.php?id=<?php echo $room_data['landlord_id']; ?>" class="block w-full py-2 text-center border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition font-medium">
+                        <a href="profile/profile.php?id=<?php echo $landlord['id']; ?>" class="block w-full py-2 text-center border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition font-medium">
                             View Profile
                         </a>
                     </div>
                     <!-- Similar Rooms -->
+                    <?php
+                    // Get up to 4 rooms (including current), then filter out current, so up to 3 others
+                    $similar_rooms = $room->getRooms(['university_id' => $room_data['university_id']], 1, 4)['rooms'];
+                    $similar_rooms = array_filter($similar_rooms, function($r) use ($room_id) {
+                        return $r['id'] != $room_id;
+                    });
+                    $similar_rooms = array_slice($similar_rooms, 0, 3);
+                    ?>
                     <?php if (!empty($similar_rooms)): ?>
                         <div class="bg-white rounded-xl shadow-sm p-6 hover-scale transition">
                             <h3 class="font-bold text-gray-800 mb-4">Similar Rooms</h3>

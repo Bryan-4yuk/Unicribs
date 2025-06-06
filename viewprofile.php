@@ -41,6 +41,8 @@ $rating_stats = $room->getLandlordRatingStats($profile_id);
 $is_own_profile = ($profile_id == $_SESSION['user_id']);
 ?>
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
